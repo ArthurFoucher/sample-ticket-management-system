@@ -4,11 +4,10 @@ import { ClientTicket } from '../interfaces/client-ticket.interface';
 
 interface Props {
   ticket: ClientTicket;
-  onClick: () => void;
   onComplete: (completed: boolean) => void;
 }
 
-export const Card: React.FC<Props> = ({ ticket, onClick, onComplete }) => {
+export const Card: React.FC<Props> = ({ ticket, onComplete }) => {
   return (
     <Box
       mt={2}
@@ -18,12 +17,6 @@ export const Card: React.FC<Props> = ({ ticket, onClick, onComplete }) => {
       borderRadius="sm"
       backgroundColor={ticket.status === 'saving' ? 'gray.50' : 'white'}
       pointerEvents={ticket.status === 'saving' ? 'none' : 'auto'}
-      onClick={(e) => {
-        if (e.defaultPrevented) {
-          return;
-        }
-        onClick();
-      }}
     >
       <Stack isInline justifyContent="space-between">
         <Text color="gray.500">Task id: {ticket.id}</Text>
