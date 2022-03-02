@@ -16,7 +16,14 @@ export const Card: React.FC<Props> = ({ ticket, onClick, onComplete }) => {
       boxShadow="md"
       w="400px"
       borderRadius="sm"
-      onClick={onClick}
+      backgroundColor={ticket.status === 'saving' ? 'gray.50' : 'white'}
+      pointerEvents={ticket.status === 'saving' ? 'none' : 'auto'}
+      onClick={(e) => {
+        if (e.defaultPrevented) {
+          return;
+        }
+        onClick();
+      }}
     >
       <Stack isInline justifyContent="space-between">
         <Text color="gray.500">Task id: {ticket.id}</Text>
@@ -24,7 +31,10 @@ export const Card: React.FC<Props> = ({ ticket, onClick, onComplete }) => {
           <Badge
             as="button"
             colorScheme={ticket.completed ? 'green' : 'gray'}
-            onClick={() => onComplete(!ticket.completed)}
+            onClick={(e) => {
+              e.preventDefault();
+              onComplete(!ticket.completed);
+            }}
           >
             {ticket.completed ? 'Done' : 'Todo'}
           </Badge>
