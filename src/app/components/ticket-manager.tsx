@@ -1,9 +1,11 @@
 import React from 'react';
-import { backend } from '../clients/backend.client';
+import { useRecoilValue } from 'recoil';
+import { ticketsSource } from '../selectors/tickets.selectors';
 import { Card } from './card';
 
 export const TicketManager: React.FC = () => {
-  const tickets = backend.storedTickets;
+  const tickets = useRecoilValue(ticketsSource);
+
   return (
     <>
       {tickets.map((ticket) => (

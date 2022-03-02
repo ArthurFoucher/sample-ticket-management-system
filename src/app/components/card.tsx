@@ -1,9 +1,9 @@
 import { Badge, Box, Stack, Text } from '@chakra-ui/react';
 import React from 'react';
-import { Ticket } from '../../backend';
+import { ClientTicket } from '../interfaces/client-ticket.interface';
 
 interface Props {
-  ticket: Ticket;
+  ticket: ClientTicket;
   onClick: () => void;
   onComplete: (completed: boolean) => void;
 }
@@ -28,7 +28,7 @@ export const Card: React.FC<Props> = ({ ticket, onClick, onComplete }) => {
           >
             {ticket.completed ? 'Done' : 'Todo'}
           </Badge>
-          {ticket.assigneeId && <Badge ml={2}>{ticket.assigneeId}</Badge>}
+          {ticket.assignee && <Badge ml={2}>{ticket.assignee.name}</Badge>}
         </Box>
       </Stack>
 
