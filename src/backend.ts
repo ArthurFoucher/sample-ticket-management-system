@@ -1,5 +1,5 @@
-import { Observable, of, throwError } from "rxjs";
-import { delay, tap } from "rxjs/operators";
+import { Observable, of, throwError } from 'rxjs';
+import { delay, tap } from 'rxjs/operators';
 
 /**
  * This service acts as a mock back-end.
@@ -18,52 +18,51 @@ export type Ticket = {
   completed: boolean;
 };
 
-function randomDelay() {
-  return Math.random() * 4000;
+function randomDelay(delay: number) {
+  return Math.random() * delay;
 }
 
 export class BackendService {
   storedTickets: Ticket[] = [
     {
       id: 0,
-      description: "Install a monitor arm",
+      description: 'Install a monitor arm',
       assigneeId: 111,
       completed: false,
     },
     {
       id: 1,
-      description: "Move the desk to the new location",
+      description: 'Move the desk to the new location',
       assigneeId: 111,
       completed: false,
     },
   ];
 
-  storedUsers: User[] = [{ id: 111, name: "Victor" }];
+  storedUsers: User[] = [
+    { id: 111, name: 'Victor' },
+    { id: 112, name: 'Arthur' },
+    { id: 113, name: 'Alex' },
+    { id: 114, name: 'Hugo' },
+  ];
 
   lastId = 1;
 
-  private findTicketById = (id: number) => {
-    const found = this.storedTickets.find((ticket) => ticket.id === +id);
-    if (found) return found;
-    throw new Error(`Ticket (id=${id}) not found`);
-  };
-  private findUserById = (id: number) =>
-    this.storedUsers.find((user) => user.id === +id);
+  constructor(private delay = 4000) {}
 
   tickets() {
-    return of(this.storedTickets).pipe(delay(randomDelay()));
+    return of(this.storedTickets).pipe(delay(randomDelay(this.delay)));
   }
 
   ticket(id: number): Observable<Ticket> {
-    return of(this.findTicketById(id)).pipe(delay(randomDelay()));
+    return of(this.findTicketById(id)).pipe(delay(randomDelay(this.delay)));
   }
 
   users() {
-    return of(this.storedUsers).pipe(delay(randomDelay()));
+    return of(this.storedUsers).pipe(delay(randomDelay(this.delay)));
   }
 
   user(id: number) {
-    return of(this.findUserById(id)).pipe(delay(randomDelay()));
+    return of(this.findUserById(id)).pipe(delay(randomDelay(this.delay)));
   }
 
   newTicket(payload: { description: string }) {
@@ -75,38 +74,54 @@ export class BackendService {
     };
 
     return of(newTicket).pipe(
-      delay(randomDelay()),
+      delay(randomDelay(this.delay)),
       tap((ticket: Ticket) => this.storedTickets.push(ticket))
     );
   }
 
   assign(ticketId: number, userId: number) {
-    const foundTicket = this.findTicketById(+ticketId);
-    const user = this.findUserById(+userId);
+    try {
+      const foundTicket = this.findTicketById(+ticketId);
+      const user = this.findUserById(+userId);
 
-    if (foundTicket && user) {
       return of(foundTicket).pipe(
-        delay(randomDelay()),
+        delay(randomDelay(this.delay)),
         tap((ticket: Ticket) => {
-          ticket.assigneeId = +userId;
+          ticket.assigneeId = user.id;
         })
       );
+    } catch (e) {
+      return throwError(() => new Error('ticket or user not found'));
     }
-
-    return throwError(new Error("ticket or user not found"));
   }
 
   complete(ticketId: number, completed: boolean) {
-    const foundTicket = this.findTicketById(+ticketId);
-    if (foundTicket) {
+    try {
+      const foundTicket = this.findTicketById(+ticketId);
       return of(foundTicket).pipe(
-        delay(randomDelay()),
+        delay(randomDelay(this.delay)),
         tap((ticket: Ticket) => {
-          ticket.completed = true;
+          ticket.completed = completed;
         })
       );
+    } catch (e) {
+      return throwError(() => new Error('ticket not found'));
     }
-
-    return throwError(new Error("ticket not found"));
   }
+
+  private findTicketById = (id: number) => {
+    const found = this.storedTickets.find((ticket) => ticket.id === +id);
+    if (found) {
+      return found;
+    }
+    throw new Error(`Ticket (id=${id}) not found`);
+  };
+
+  private findUserById = (id: number) => {
+    const found = this.storedUsers.find((user) => user.id === +id);
+    if (found) {
+      return found;
+    }
+    throw new Error(`User (id=${id}) not found`);
+  };
 }
