@@ -10,6 +10,7 @@ interface Props {
 export const Card: React.FC<Props> = ({ ticket, onComplete }) => {
   return (
     <Box
+      data-testid="card"
       mt={2}
       p={2}
       boxShadow="md"
@@ -23,6 +24,7 @@ export const Card: React.FC<Props> = ({ ticket, onComplete }) => {
         <Box>
           <Badge
             as="button"
+            data-testid="complete-button"
             colorScheme={ticket.completed ? 'green' : 'gray'}
             onClick={(e) => {
               e.preventDefault();
