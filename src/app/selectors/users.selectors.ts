@@ -1,11 +1,14 @@
 import { keyBy } from 'lodash';
-import { atom } from 'recoil';
+import { atom, selector } from 'recoil';
 import { firstValueFrom } from 'rxjs';
 import { backend } from '../clients/backend.client';
 
-const fetchUsers = firstValueFrom(backend.users());
+export const userListSource = atom({
+  key: 'userList',
+  default: firstValueFrom(backend.users()),
+});
 
-export const userMappingSource = atom({
+export const userMappingSource = selector({
   key: 'userMapping',
-  default: fetchUsers.then((users) => keyBy(users, (user) => user.id)),
+  get: ({ get }) => keyBy(get(userListSource), (user) => user.id),
 });

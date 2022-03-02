@@ -6,6 +6,10 @@ import {
   ClientTicket,
   SavedTicket,
 } from '../interfaces/client-ticket.interface';
+import {
+  assigneesFilterSource,
+  descriptionFilterSource,
+} from './filters.selectors';
 import { userMappingSource } from './users.selectors';
 
 const fetchTickets = firstValueFrom(backend.tickets()).then((tickets) =>
@@ -30,10 +34,24 @@ export const ticketsSource = selector({
     const ids = get(ticketIdsSource);
     const ticketMapping = get(ticketMappingSource);
     const userMapping = get(userMappingSource);
+    const descriptionFilter = get(descriptionFilterSource).toLocaleLowerCase();
+    const assignees = get(assigneesFilterSource);
 
     return ids
       .map((id) => ticketMapping[id])
       .filter((ticket) => ticket != null)
+      .filter(({ description }) =>
+        description.toLocaleLowerCase().includes(descriptionFilter)
+      )
+      .filter(({ assigneeId }) => {
+        if (assignees.size === 0) {
+          return true;
+        }
+        if (assigneeId == null) {
+          return false;
+        }
+        return assignees.has(assigneeId);
+      })
       .map(
         ({ id, description, completed, assigneeId, status }): ClientTicket => ({
           id,
